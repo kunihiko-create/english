@@ -397,7 +397,7 @@ export default function Home() {
       <section className="progress-band" aria-label="学習の目安">
         <div><p className="eyebrow">TODAY'S FOCUS</p><h2>苦手を先に、覚えたら次へ。</h2></div>
         <p className="progress-copy">「苦手」で印を付けたカードは、状態フィルターからすぐに復習できます。記録はこのブラウザに保存されます。</p>
-        <img className="focus-image" src="/og.png" alt="英単語カードのイメージ" />
+        <img className="focus-image" src="og.png" alt="英単語カードのイメージ" />
       </section>
     </main>
   );
