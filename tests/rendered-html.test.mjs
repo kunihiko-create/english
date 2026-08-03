@@ -62,15 +62,16 @@ test("removes the disposable starter preview", async () => {
 });
 
 test("keeps the expanded study data balanced and complete", async () => {
-  const [page, expanded, more, further, idioms, nonWordExamples] = await Promise.all([
+  const [page, expanded, more, further, idioms, additional, nonWordExamples] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/expanded-study-data.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/more-study-data.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/further-study-data.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/idiom-study-data.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/additional-study-data.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/non-word-second-examples.ts", import.meta.url), "utf8"),
   ]);
-  const allSource = `${page}\n${expanded}\n${more}\n${further}\n${idioms}`;
+  const allSource = `${page}\n${expanded}\n${more}\n${further}\n${idioms}\n${additional}`;
   const itemIds = [...allSource.matchAll(/\{ id: "([wpgi]-\d+)"/g)].map((match) => match[1]);
   const groupedCounts = Object.fromEntries(["w", "p", "g", "i"].map((prefix) => [prefix, itemIds.filter((id) => id.startsWith(prefix)).length]));
   const levelCounts = Object.fromEntries(["w", "p", "g", "i"].flatMap((prefix) => ["A1", "A2", "B1"].map((level) => [
@@ -78,13 +79,13 @@ test("keeps the expanded study data balanced and complete", async () => {
     itemIds.filter((id) => id.startsWith(prefix) && allSource.includes(`{ id: "${id}", level: "${level}"`)).length,
   ])));
 
-  assert.deepEqual(groupedCounts, { w: 210, p: 60, g: 60, i: 90 });
-  assert.equal(new Set(itemIds).size, 420);
+  assert.deepEqual(groupedCounts, { w: 240, p: 90, g: 90, i: 120 });
+  assert.equal(new Set(itemIds).size, 540);
   assert.deepEqual(levelCounts, {
-    "w-A1": 70, "w-A2": 70, "w-B1": 70,
-    "p-A1": 20, "p-A2": 20, "p-B1": 20,
-    "g-A1": 20, "g-A2": 20, "g-B1": 20,
-    "i-A1": 30, "i-A2": 30, "i-B1": 30,
+    "w-A1": 80, "w-A2": 80, "w-B1": 80,
+    "p-A1": 30, "p-A2": 30, "p-B1": 30,
+    "g-A1": 30, "g-A2": 30, "g-B1": 30,
+    "i-A1": 40, "i-A2": 40, "i-B1": 40,
   });
 
   const translationSource = [
@@ -93,6 +94,7 @@ test("keeps the expanded study data balanced and complete", async () => {
     more.slice(more.indexOf("const MORE_INDONESIAN_TRANSLATIONS"), more.indexOf("const MORE_SECOND_WORD_EXAMPLES")),
     further.slice(further.indexOf("const FURTHER_INDONESIAN_TRANSLATIONS"), further.indexOf("const FURTHER_SECOND_WORD_EXAMPLES")),
     idioms.slice(idioms.indexOf("const IDIOM_INDONESIAN_TRANSLATIONS"), idioms.indexOf("const IDIOM_SECOND_EXAMPLES")),
+    additional.slice(additional.indexOf("const ADDITIONAL_INDONESIAN_TRANSLATIONS"), additional.indexOf("const ADDITIONAL_SECOND_EXAMPLES")),
   ].join("\n");
   const translationIds = [...translationSource.matchAll(/"([wpgi]-\d+)":/g)].map((match) => match[1]);
   const exampleSource = [
@@ -101,6 +103,7 @@ test("keeps the expanded study data balanced and complete", async () => {
     more.slice(more.indexOf("const MORE_SECOND_WORD_EXAMPLES")),
     further.slice(further.indexOf("const FURTHER_SECOND_WORD_EXAMPLES")),
     idioms.slice(idioms.indexOf("const IDIOM_SECOND_EXAMPLES")),
+    additional.slice(additional.indexOf("const ADDITIONAL_SECOND_EXAMPLES")),
     nonWordExamples,
   ].join("\n");
   const secondExampleIds = [...exampleSource.matchAll(/"([wpgi]-\d+)": \{ english:/g)].map((match) => match[1]);
