@@ -44,7 +44,7 @@ h2 { margin-bottom: 0; font-size: 1.2rem; }
 .stats strong { color: var(--navy); font-size: 1.55rem; line-height: 1; }
 .stats span { color: var(--muted); font-size: 0.76rem; font-weight: 800; }
 
-.mode-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; width: min(500px, 100%); margin: 0 auto 12px; padding: 6px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); box-shadow: 0 7px 18px rgba(31, 73, 98, 0.08); }
+.mode-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; width: min(620px, 100%); margin: 0 auto 12px; padding: 6px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); box-shadow: 0 7px 18px rgba(31, 73, 98, 0.08); }
 .mode-tabs button, .level-tabs button { min-height: 43px; border-radius: 6px; color: var(--navy); background: #eef3f2; font-weight: 800; cursor: pointer; transition: background 160ms ease, color 160ms ease; }
 .mode-tabs button.active, .level-tabs button.active { color: white; background: var(--navy); }
 
