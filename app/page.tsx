@@ -22,10 +22,11 @@ import {
   FURTHER_SECOND_WORD_EXAMPLES,
   FURTHER_WORDS
 } from "./further-study-data";
+import { IDIOMS, IDIOM_INDONESIAN_TRANSLATIONS, IDIOM_SECOND_EXAMPLES } from "./idiom-study-data";
 import { NON_WORD_SECOND_EXAMPLES } from "./non-word-second-examples";
 
 type Level = "A1" | "A2" | "B1";
-type Mode = "words" | "phrases" | "grammar";
+type Mode = "words" | "phrases" | "grammar" | "idioms";
 type Status = "new" | "hard" | "known";
 type ExamplePair = { english: string; japanese: string };
 
@@ -54,7 +55,8 @@ const INDONESIAN_TRANSLATIONS: Record<string, string> = {
   "g-001": "menyatakan keadaan atau identitas subjek", "g-002": "menyatakan kebiasaan atau fakta", "g-003": "dapat; bisa", "g-004": "menyatakan kejadian masa lalu", "g-005": "lebih ...", "g-006": "sedang ...", "g-007": "menyatakan pengalaman, kelanjutan, atau penyelesaian", "g-008": "untuk melakukan; melakukan", "g-009": "menjelaskan kata benda dari belakang",
   ...EXTRA_INDONESIAN_TRANSLATIONS,
   ...MORE_INDONESIAN_TRANSLATIONS,
-  ...FURTHER_INDONESIAN_TRANSLATIONS
+  ...FURTHER_INDONESIAN_TRANSLATIONS,
+  ...IDIOM_INDONESIAN_TRANSLATIONS
 };
 
 const SECOND_EXAMPLES: Record<string, ExamplePair> = {
@@ -91,7 +93,8 @@ const SECOND_EXAMPLES: Record<string, ExamplePair> = {
   ...EXTRA_SECOND_WORD_EXAMPLES,
   ...MORE_SECOND_WORD_EXAMPLES,
   ...FURTHER_SECOND_WORD_EXAMPLES,
-  ...NON_WORD_SECOND_EXAMPLES
+  ...NON_WORD_SECOND_EXAMPLES,
+  ...IDIOM_SECOND_EXAMPLES
 };
 
 const WORDS: StudyItem[] = [
@@ -155,11 +158,13 @@ const GRAMMAR: StudyItem[] = [
 const ALL_WORDS = [...WORDS, ...EXTRA_WORDS, ...MORE_WORDS, ...FURTHER_WORDS];
 const ALL_PHRASES = [...PHRASES, ...EXTRA_PHRASES, ...MORE_PHRASES, ...FURTHER_PHRASES];
 const ALL_GRAMMAR = [...GRAMMAR, ...EXTRA_GRAMMAR, ...MORE_GRAMMAR, ...FURTHER_GRAMMAR];
+const ALL_IDIOMS = [...IDIOMS];
 
 const MODE_COPY: Record<Mode, { title: string; list: string; front: string; reveal: string }> = {
   words: { title: "英単語カード", list: "単語一覧", front: "英単語", reveal: "意味を見る" },
   phrases: { title: "英会話フレーズ", list: "フレーズ一覧", front: "英会話フレーズ", reveal: "意味を見る" },
-  grammar: { title: "英文法カード", list: "文法一覧", front: "英文法", reveal: "説明を見る" }
+  grammar: { title: "英文法カード", list: "文法一覧", front: "英文法", reveal: "説明を見る" },
+  idioms: { title: "英熟語カード", list: "熟語一覧", front: "英熟語", reveal: "意味を見る" }
 };
 
 function itemStatus(item: StudyItem, known: Set<string>, hard: Set<string>): Status {
@@ -184,7 +189,7 @@ export default function Home() {
   const [hard, setHard] = useState<Set<string>>(new Set());
   const [isReady, setIsReady] = useState(false);
 
-  const source = mode === "words" ? ALL_WORDS : mode === "phrases" ? ALL_PHRASES : ALL_GRAMMAR;
+  const source = mode === "words" ? ALL_WORDS : mode === "phrases" ? ALL_PHRASES : mode === "grammar" ? ALL_GRAMMAR : ALL_IDIOMS;
   const categories = useMemo(() => Array.from(new Set(source.map((item) => item.category))), [source]);
   const visibleItems = useMemo(() => {
     const needle = search.trim().toLowerCase();
@@ -307,9 +312,9 @@ export default function Home() {
       </header>
 
       <nav className="mode-tabs" aria-label="学習モード">
-        {(["words", "phrases", "grammar"] as Mode[]).map((tab) => (
+        {(["words", "phrases", "grammar", "idioms"] as Mode[]).map((tab) => (
           <button className={mode === tab ? "active" : ""} onClick={() => chooseMode(tab)} type="button" key={tab}>
-            {{ words: "単語", phrases: "フレーズ", grammar: "文法" }[tab]}
+            {{ words: "単語", phrases: "フレーズ", grammar: "文法", idioms: "熟語" }[tab]}
           </button>
         ))}
       </nav>
