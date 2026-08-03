@@ -22,7 +22,19 @@ import {
   FURTHER_SECOND_WORD_EXAMPLES,
   FURTHER_WORDS
 } from "./further-study-data";
-import { IDIOMS, IDIOM_INDONESIAN_TRANSLATIONS, IDIOM_SECOND_EXAMPLES } from "./idiom-study-data";
+import {
+  IDIOMS,
+  IDIOM_INDONESIAN_TRANSLATIONS,
+  IDIOM_SECOND_EXAMPLES
+} from "./idiom-study-data";
+import {
+  ADDITIONAL_GRAMMAR,
+  ADDITIONAL_IDIOMS,
+  ADDITIONAL_INDONESIAN_TRANSLATIONS,
+  ADDITIONAL_PHRASES,
+  ADDITIONAL_SECOND_EXAMPLES,
+  ADDITIONAL_WORDS
+} from "./additional-study-data";
 import { NON_WORD_SECOND_EXAMPLES } from "./non-word-second-examples";
 
 type Level = "A1" | "A2" | "B1";
@@ -56,7 +68,8 @@ const INDONESIAN_TRANSLATIONS: Record<string, string> = {
   ...EXTRA_INDONESIAN_TRANSLATIONS,
   ...MORE_INDONESIAN_TRANSLATIONS,
   ...FURTHER_INDONESIAN_TRANSLATIONS,
-  ...IDIOM_INDONESIAN_TRANSLATIONS
+  ...IDIOM_INDONESIAN_TRANSLATIONS,
+  ...ADDITIONAL_INDONESIAN_TRANSLATIONS
 };
 
 const SECOND_EXAMPLES: Record<string, ExamplePair> = {
@@ -94,7 +107,8 @@ const SECOND_EXAMPLES: Record<string, ExamplePair> = {
   ...MORE_SECOND_WORD_EXAMPLES,
   ...FURTHER_SECOND_WORD_EXAMPLES,
   ...NON_WORD_SECOND_EXAMPLES,
-  ...IDIOM_SECOND_EXAMPLES
+  ...IDIOM_SECOND_EXAMPLES,
+  ...ADDITIONAL_SECOND_EXAMPLES
 };
 
 const WORDS: StudyItem[] = [
@@ -155,10 +169,10 @@ const GRAMMAR: StudyItem[] = [
   { id: "g-009", level: "B1", term: "関係代名詞", japanese: "名詞を後ろから説明する", category: "文のつながり", label: "文法", pattern: "the person who ...", example: "The person who called you is my friend.", exampleJapanese: "あなたに電話した人は私の友人です。", note: "who は人、which は物を説明するときに使います。" }
 ];
 
-const ALL_WORDS = [...WORDS, ...EXTRA_WORDS, ...MORE_WORDS, ...FURTHER_WORDS];
-const ALL_PHRASES = [...PHRASES, ...EXTRA_PHRASES, ...MORE_PHRASES, ...FURTHER_PHRASES];
-const ALL_GRAMMAR = [...GRAMMAR, ...EXTRA_GRAMMAR, ...MORE_GRAMMAR, ...FURTHER_GRAMMAR];
-const ALL_IDIOMS = [...IDIOMS];
+const ALL_WORDS = [...WORDS, ...EXTRA_WORDS, ...MORE_WORDS, ...FURTHER_WORDS, ...ADDITIONAL_WORDS];
+const ALL_PHRASES = [...PHRASES, ...EXTRA_PHRASES, ...MORE_PHRASES, ...FURTHER_PHRASES, ...ADDITIONAL_PHRASES];
+const ALL_GRAMMAR = [...GRAMMAR, ...EXTRA_GRAMMAR, ...MORE_GRAMMAR, ...FURTHER_GRAMMAR, ...ADDITIONAL_GRAMMAR];
+const ALL_IDIOMS = [...IDIOMS, ...ADDITIONAL_IDIOMS];
 
 const MODE_COPY: Record<Mode, { title: string; list: string; front: string; reveal: string }> = {
   words: { title: "英単語カード", list: "単語一覧", front: "英単語", reveal: "意味を見る" },
@@ -256,7 +270,6 @@ export default function Home() {
     setIndex((currentIndex) => (currentIndex + direction + visibleItems.length) % visibleItems.length);
     setFlipped(false);
   }
-
 
   function handleCardPointerDown(event: ReactPointerEvent<HTMLElement>) {
     if (event.pointerType === "mouse") return;
