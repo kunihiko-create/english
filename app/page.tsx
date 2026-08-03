@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import {
   EXTRA_GRAMMAR,
   EXTRA_INDONESIAN_TRANSLATIONS,
@@ -188,6 +188,8 @@ export default function Home() {
   const [known, setKnown] = useState<Set<string>>(new Set());
   const [hard, setHard] = useState<Set<string>>(new Set());
   const [isReady, setIsReady] = useState(false);
+  const swipeStart = useRef<{ x: number; y: number } | null>(null);
+  const ignoreCardClick = useRef(false);
 
   const source = mode === "words" ? ALL_WORDS : mode === "phrases" ? ALL_PHRASES : mode === "grammar" ? ALL_GRAMMAR : ALL_IDIOMS;
   const categories = useMemo(() => Array.from(new Set(source.map((item) => item.category))), [source]);
@@ -253,6 +255,35 @@ export default function Home() {
     if (!visibleItems.length) return;
     setIndex((currentIndex) => (currentIndex + direction + visibleItems.length) % visibleItems.length);
     setFlipped(false);
+  }
+
+
+  function handleCardPointerDown(event: ReactPointerEvent<HTMLElement>) {
+    if (event.pointerType === "mouse") return;
+    swipeStart.current = { x: event.clientX, y: event.clientY };
+    ignoreCardClick.current = false;
+  }
+
+  function handleCardPointerEnd(event: ReactPointerEvent<HTMLElement>) {
+    const start = swipeStart.current;
+    swipeStart.current = null;
+    if (!start || event.pointerType === "mouse") return;
+
+    const horizontalDistance = event.clientX - start.x;
+    const verticalDistance = event.clientY - start.y;
+    const isHorizontalSwipe = Math.abs(horizontalDistance) >= 48 && Math.abs(horizontalDistance) > Math.abs(verticalDistance) * 1.25;
+    if (!isHorizontalSwipe) return;
+
+    ignoreCardClick.current = true;
+    step(horizontalDistance < 0 ? 1 : -1);
+  }
+
+  function toggleCard() {
+    if (ignoreCardClick.current) {
+      ignoreCardClick.current = false;
+      return;
+    }
+    setFlipped((value) => !value);
   }
 
   function mark(nextStatus: "known" | "hard") {
@@ -360,7 +391,7 @@ export default function Home() {
             <button className="review-button neutral" onClick={shuffle} type="button" disabled={visibleItems.length < 2}>シャッフル</button>
           </div>
           {current ? (
-            <article className={`flashcard ${flipped ? "is-back" : ""}`} tabIndex={0} onClick={() => setFlipped((value) => !value)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setFlipped((value) => !value); } }} role="button" aria-label="カードをめくる">
+            <article className={`flashcard ${flipped ? "is-back" : ""}`} tabIndex={0} onClick={toggleCard} onPointerDown={handleCardPointerDown} onPointerEnd={handleCardPointerEnd} onPointerCancel={() => { swipeStart.current = null; }} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setFlipped((value) => !value); } }} role="button" aria-label="カードをめくる">
               {flipped ? (
                 <div className="card-back">
                   <div className="back-title"><div><span className="face-label">意味</span><h2>{current.term}</h2></div><span className={`status-dot ${itemStatus(current, known, hard)}`}>{statusText(itemStatus(current, known, hard))}</span></div>
