@@ -33,9 +33,10 @@ test("server-renders the English study application", async () => {
 });
 
 test("removes the disposable starter preview", async () => {
-  const [page, layout, packageJson] = await Promise.all([
+  const [page, layout, styles, packageJson] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
     readFile(new URL("../package.json", import.meta.url), "utf8"),
   ]);
 
@@ -43,10 +44,16 @@ test("removes the disposable starter preview", async () => {
   assert.match(page, /localStorage/);
   assert.match(page, /const PHRASES/);
   assert.match(page, /const GRAMMAR/);
+  assert.match(page, /const ALL_IDIOMS/);
+  assert.match(page, /英熟語カード/);
   assert.match(page, /const INDONESIAN_TRANSLATIONS/);
   assert.match(page, /const SECOND_EXAMPLES/);
   assert.match(page, /confident about the interview/);
   assert.match(page, /confident in your English/);
+  assert.match(page, /function handleCardPointerEnd/);
+  assert.match(page, /onPointerDown=\{handleCardPointerDown\}/);
+  assert.match(page, /onPointerEnd=\{handleCardPointerEnd\}/);
+  assert.match(styles, /touch-action: pan-y/);
   assert.doesNotMatch(page, /Bahasa Indonesia/);
   assert.match(layout, /英単語カード \| English Study/);
   assert.doesNotMatch(page, /SkeletonPreview|codex-preview/);
@@ -55,27 +62,29 @@ test("removes the disposable starter preview", async () => {
 });
 
 test("keeps the expanded study data balanced and complete", async () => {
-  const [page, expanded, more, further, nonWordExamples] = await Promise.all([
+  const [page, expanded, more, further, idioms, nonWordExamples] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/expanded-study-data.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/more-study-data.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/further-study-data.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/idiom-study-data.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/non-word-second-examples.ts", import.meta.url), "utf8"),
   ]);
-  const allSource = `${page}\n${expanded}\n${more}\n${further}`;
-  const itemIds = [...allSource.matchAll(/\{ id: "([wpg]-\d+)"/g)].map((match) => match[1]);
-  const groupedCounts = Object.fromEntries(["w", "p", "g"].map((prefix) => [prefix, itemIds.filter((id) => id.startsWith(prefix)).length]));
-  const levelCounts = Object.fromEntries(["w", "p", "g"].flatMap((prefix) => ["A1", "A2", "B1"].map((level) => [
+  const allSource = `${page}\n${expanded}\n${more}\n${further}\n${idioms}`;
+  const itemIds = [...allSource.matchAll(/\{ id: "([wpgi]-\d+)"/g)].map((match) => match[1]);
+  const groupedCounts = Object.fromEntries(["w", "p", "g", "i"].map((prefix) => [prefix, itemIds.filter((id) => id.startsWith(prefix)).length]));
+  const levelCounts = Object.fromEntries(["w", "p", "g", "i"].flatMap((prefix) => ["A1", "A2", "B1"].map((level) => [
     `${prefix}-${level}`,
     itemIds.filter((id) => id.startsWith(prefix) && allSource.includes(`{ id: "${id}", level: "${level}"`)).length,
   ])));
 
-  assert.deepEqual(groupedCounts, { w: 210, p: 60, g: 60 });
-  assert.equal(new Set(itemIds).size, 330);
+  assert.deepEqual(groupedCounts, { w: 210, p: 60, g: 60, i: 90 });
+  assert.equal(new Set(itemIds).size, 420);
   assert.deepEqual(levelCounts, {
     "w-A1": 70, "w-A2": 70, "w-B1": 70,
     "p-A1": 20, "p-A2": 20, "p-B1": 20,
     "g-A1": 20, "g-A2": 20, "g-B1": 20,
+    "i-A1": 30, "i-A2": 30, "i-B1": 30,
   });
 
   const translationSource = [
@@ -83,16 +92,18 @@ test("keeps the expanded study data balanced and complete", async () => {
     expanded.slice(expanded.indexOf("const EXTRA_INDONESIAN_TRANSLATIONS"), expanded.indexOf("const EXTRA_SECOND_WORD_EXAMPLES")),
     more.slice(more.indexOf("const MORE_INDONESIAN_TRANSLATIONS"), more.indexOf("const MORE_SECOND_WORD_EXAMPLES")),
     further.slice(further.indexOf("const FURTHER_INDONESIAN_TRANSLATIONS"), further.indexOf("const FURTHER_SECOND_WORD_EXAMPLES")),
+    idioms.slice(idioms.indexOf("const IDIOM_INDONESIAN_TRANSLATIONS"), idioms.indexOf("const IDIOM_SECOND_EXAMPLES")),
   ].join("\n");
-  const translationIds = [...translationSource.matchAll(/"([wpg]-\d+)":/g)].map((match) => match[1]);
+  const translationIds = [...translationSource.matchAll(/"([wpgi]-\d+)":/g)].map((match) => match[1]);
   const exampleSource = [
     page.slice(page.indexOf("const SECOND_EXAMPLES"), page.indexOf("const WORDS")),
     expanded.slice(expanded.indexOf("const EXTRA_SECOND_WORD_EXAMPLES")),
     more.slice(more.indexOf("const MORE_SECOND_WORD_EXAMPLES")),
     further.slice(further.indexOf("const FURTHER_SECOND_WORD_EXAMPLES")),
+    idioms.slice(idioms.indexOf("const IDIOM_SECOND_EXAMPLES")),
     nonWordExamples,
   ].join("\n");
-  const secondExampleIds = [...exampleSource.matchAll(/"([wpg]-\d+)": \{ english:/g)].map((match) => match[1]);
+  const secondExampleIds = [...exampleSource.matchAll(/"([wpgi]-\d+)": \{ english:/g)].map((match) => match[1]);
 
   assert.deepEqual(new Set(translationIds), new Set(itemIds));
   assert.deepEqual(new Set(secondExampleIds), new Set(itemIds));
