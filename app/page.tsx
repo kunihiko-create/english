@@ -27,6 +27,7 @@ import {
   IDIOM_INDONESIAN_TRANSLATIONS,
   IDIOM_SECOND_EXAMPLES
 } from "./idiom-study-data";
+import { IDIOM_EQUIVALENT_WORDS } from "./idiom-equivalent-words";
 import {
   ADDITIONAL_GRAMMAR,
   ADDITIONAL_IDIOMS,
@@ -416,7 +417,10 @@ export default function Home() {
                   <div className={`examples ${mode === "words" ? "is-word-examples" : ""}`}>
                     {cardExamples.map((example, exampleIndex) => <div className="example" key={`${current.id}-${exampleIndex}`}><span>{cardExamples.length > 1 ? `EXAMPLE ${exampleIndex + 1}` : "EXAMPLE"}</span><p>{example.english}</p><small>{example.japanese}</small></div>)}
                   </div>
-                  <p className="note">{current.note}</p>
+                  <div className="note">
+                    {mode === "idioms" && IDIOM_EQUIVALENT_WORDS[current.id] && <p className="equivalent-word"><span>同じ意味の単語</span><strong>{IDIOM_EQUIVALENT_WORDS[current.id]}</strong></p>}
+                    <p>{current.note}</p>
+                  </div>
                 </div>
               ) : (
                 <div className="card-front">
